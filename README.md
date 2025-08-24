@@ -91,3 +91,10 @@ $ sudo docker build -t ocr-paddle:latest .
 ```bash
 $ sudo docker run --rm -p 8000:8000 ocr-paddle:latest
 ```
+
+## API Test
+```bash
+curl --location 'http://localhost:8000/ocr?lang=en&contrast=30&sharpness=75&binarization=adaptive' \
+--header 'accept: application/json' \
+--form 'file=@"/home/fernando/Downloads/IMG_20250821_161044.jpg"'
+```
