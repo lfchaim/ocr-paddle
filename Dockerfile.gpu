@@ -1,0 +1,27 @@
+# Exemplo de imagem base com CUDA + cuDNN (ajuste conforme seu host/NVIDIA)
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# Instala Python 3.10 e dependências
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3.10 python3.10-venv python3-pip \
+    build-essential \
+    libglib2.0-0 libgl1 libsm6 libxext6 libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt ./
+
+# Substitui paddlepaddle por paddlepaddle-gpu (versão pode exigir ajuste)
+RUN pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 uninstall -y paddlepaddle && \
+    pip3 install --no-cache-dir paddlepaddle-gpu==2.6.1
+
+COPY app ./app
+EXPOSE 8000
+
+ENV LOG_LEVEL=INFO \
+    MAX_UPLOAD_MB=10 \
+    RATE_LIMIT=60/minute
+
+# Necessário passar --gpus all no docker run ou perfil GPU no compose
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
